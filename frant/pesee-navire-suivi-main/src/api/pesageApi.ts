@@ -1,7 +1,7 @@
 import api from './axiosClient';
 import { Pesage, Pesee, Prestation,PeseAjouter } from '../types/types';
 import { ConstructionIcon } from 'lucide-react';
-import { AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 const BASE_URL = "/historique-pesees";
 
@@ -14,6 +14,29 @@ const getPesage = async (numeroPrestation: string): Promise<Pesee[]> => {
     }
     return response;
 }
+
+
+
+
+// Nom de fonction : detectVehicle
+// Nom de fonction : detectVehicle
+export async function detectVehicle(f: FormData) {
+  if (!f) {
+    throw new Error("Aucune image fournie");
+  }
+
+  try {
+    const response = await axios.post("http://localhost:8000/detect", f, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    console.log(response.data)
+    return response.data; // renvoie directement le JSON
+  } catch (error) {
+    console.error("Erreur lors de l'envoi à l'API :", error);
+    throw error;
+  }
+}
+
 
 // Fonction pour créer une pesée
 export function createPesage(pesee: PeseAjouter): Promise<Pesee> {

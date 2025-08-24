@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Edit, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Pesee, Statut, TypeOperation, TypePesage } from "@/types/types";
-import getPesage, { createPesage, getLastTarePesage } from "@/api/pesageApi";
+import getPesage, { createPesage, detectVehicle, getLastTarePesage } from "@/api/pesageApi";
 import { PeseAjouter } from "@/types/types";
 import { getPoids } from "@/api/balaneAPI";
 interface NouvellePeseeData {
@@ -90,12 +90,10 @@ export const NouvellePeseeDialog = ({ onAddPesage, typePesage , numeroDePrestati
   };
 
   // Simulation de reconnaissance automatique du véhicule
-  const simulateVehicleRecognition = () => {
-    const vehicleTypes = ["Camion", "Remorque", "Semi-remorque"];
-    const randomNumbers = Math.floor(Math.random() * 9000) + 1000;
-    const randomType = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
-    setData({ ...data, vehicule: `${randomType}-${randomNumbers}` });
-  };
+const simulateVehicleRecognition = () => {
+  fileInputRef.current?.click();
+// ouvre la sélection de fichier
+};
 
   // Simulation du poids du pont bascule
 const simulateWeightReading = async () => {
@@ -141,6 +139,34 @@ fetchData();
   }
 }, [open, numeroDePrestation, toast]);
 
+
+// Dans le composant NouvellePeseeDialog
+const fileInputRef = useRef<HTMLInputElement>(null);
+
+const handleVehicleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  try {
+    const formData = new FormData();
+    formData.append("file", file); // ⚠️ doit s’appeler "file" (comme dans Flask)
+
+    const res = await detectVehicle(formData); // appelle axios
+    console.log("Résultat API :", res);
+
+    if (res.vehicule) {
+      setData(prev => ({ ...prev, vehicule: res.vehicule }));
+    }
+  } catch (error) {
+    console.error("Erreur lors de la reconnaissance du véhicule :", error);
+    toast({
+      variant: "destructive",
+      title: "Erreur",
+      description: "Impossible de reconnaître le véhicule depuis l'image.",
+    });
+  }
+};
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -176,6 +202,13 @@ fetchData();
               >
                 Auto
               </Button>
+                    <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                accept="image/*"
+                onChange={handleVehicleImageUpload}
+              />
             </div>
             <p className="text-xs text-muted-foreground">
               Rempli automatiquement via reconnaissance (modifiable)
