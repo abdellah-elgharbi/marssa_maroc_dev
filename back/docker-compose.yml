@@ -1,0 +1,32 @@
+version:  "3.8"
+services:
+  discovery-service:
+    build: ./discovery-Client
+    ports:
+      - "8761:8761"
+    networks:
+      - microservice-network
+  gate-way:
+    build: ./GatWay
+    ports:
+      - 8083:8083
+    networks:
+      - microservice-network
+    depends_on:
+      - discovery-service
+    environment:
+      - EUREKA_SERVER=http://discovery-service:8761/eureka/
+
+
+  config-service:
+    build: ./configServer
+    ports:
+      - "8881:8881"
+    depends_on:
+      - discovery-service
+    networks:
+      - microservice-network
+
+networks:
+  microservice-network:
+    driver: bridge

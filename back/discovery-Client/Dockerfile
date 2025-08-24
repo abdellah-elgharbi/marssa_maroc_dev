@@ -2,9 +2,12 @@ FROM openjdk:17-jdk-slim
 
 WORKDIR /app
 
-# Copier n'importe quel JAR dans le dossier /app et le renommer en app.jar
-COPY target/*.jar discovery-service.jar
+COPY target/discovery-Client-0.0.1-SNAPSHOT.jar  discovery-server.jar
 
-EXPOSE 8080
+EXPOSE 8761
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","discovery-server.jar"]
+
+
+
+ 

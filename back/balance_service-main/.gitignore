@@ -1,0 +1,21 @@
+# Environnements virtuels
+.venv/
+venv/
+env/
+
+# Fichiers Python inutiles
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# Logs
+*.log
+
+# Configs locales
+.env
+
+# Dossiers générés
+.idea/
+.vscode/
